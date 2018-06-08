@@ -3,4 +3,5 @@ This repo contains projects, scripts, and references for building video analysis
 <br>
 <br><b>References:</b>
 <br>&nbsp;&nbsp;&nbsp;&nbsp;&bull;&nbsp;<a href="https://www.pyimagesearch.com/">PyImageSearch</a>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&bull;&nbsp;<a href="https://pjreddie.com/darknet/yolo/">Yolo</a>
 <br>
