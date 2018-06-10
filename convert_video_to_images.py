@@ -41,7 +41,7 @@ while success:
     r = img_width / float(w)
     resized_image = cv2.resize(image, (img_width, int(h * r)))                      # Resize image based on img_width, and keep scale / aspect ratio.
     
-    cv2.imwrite("frame" + str(count) + ".jpg", image)                               # Save frame as .jpg file      
+    cv2.imwrite("frame" + str(count) + ".jpg", resized_image)                       # Save frame as .jpg file      
     success,image = video_obj.read()
     print('Processed ' + str(count) + ' frames. Reading new frame...')
     count += 1
