@@ -24,8 +24,8 @@ RUN apt-get update && \
         git \
         wget \
         unzip \
-		net-tools \
-		nano \
+	net-tools \
+	nano \
         yasm \
         pkg-config \
         libswscale-dev \
@@ -36,7 +36,7 @@ RUN apt-get update && \
         libtiff-dev \
         libavformat-dev \
         libpq-dev \
-		libgtk2.0-dev
+	libgtk2.0-dev
 
 # Install python packages
 RUN pip install numpy==1.14.4 imutils==0.4.6 jupyter==1.0.0 matplotlib==2.2.2
