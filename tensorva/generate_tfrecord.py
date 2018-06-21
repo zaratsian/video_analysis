@@ -6,21 +6,47 @@
 #   Used with Tensorflow Object Detection API. This code is required whenever a new tensorflow
 #   label is being trained (either from scrath or through transfer learning)
 #
-#   Usage:
+#   Usage: 
+#       ./generate_tfrecord.py <dir_images> <dir_annotations> <output_path> <label_map.json>
 #
 #
 # From the tensorflow/models/research/ directory
 '''
 python object_detection/train.py \
     --logtostderr \
-    --pipeline_config_path=/tmp/zarats/models/model/tensorflow_va_training.config \
-    --train_dir=/tmp/zarats/models/model/train/
+    --pipeline_config_path=/tmp/zarats/ssd_mobilenet_v2_coco.config \
+    --train_dir=/tmp/zarats/train
 '''
 #
-#   The .config file can be copied from here, based on the model that you'd like to use for transfer learning: https://github.com/tensorflow/models/tree/master/research/object_detection/samples/configs
+#
+# Directory Structure
+'''
+.
+./data
+./data/train.record
+./data/tensorflow_va_training.pbtxt
+./data/eval.record
+./models
+./models/model.ckpt.meta
+./models/model.ckpt.data-00000-of-00001
+./models/model.ckpt.index
+./train
+./train/graph.pbtxt
+./train/pipeline.config
+./train/events.out.tfevents.1529617540.b14afc5d139f
+./train/model.ckpt-0.index
+./train/checkpoint
+./train/model.ckpt-0.data-00000-of-00001
+./ssd_mobilenet_v2_coco.config
+'''
+#
+#   NOTE: The .config file must match the type of model that is being used for transfer learning (ie. from the Model Zoo)
+#
+#       The .config file can be copied from here, based on the model that you'd like to use for transfer learning: https://github.com/tensorflow/models/tree/master/research/object_detection/samples/configs
 #       Addiditional info on the config file: https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/configuring_jobs.md
-#   For Transfer learning, use ckpt files, found here:  https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md
-#  
+#
+#       For Transfer learning, use ckpt files, found here:  https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md
+#
 ####################################################################################################
 
 
@@ -51,6 +77,7 @@ output_path     = '/tmp/train.record'
 
 
 # Label Map should link an ID (int) to each category that we are training against.
+# label_map.json
 label_map = {
     'jetta': 1
 }
