@@ -16,6 +16,11 @@ python object_detection/train.py \
     --pipeline_config_path=/tmp/zarats/models/model/tensorflow_va_training.config \
     --train_dir=/tmp/zarats/models/model/train/
 '''
+#
+#   The .config file can be copied from here, based on the model that you'd like to use for transfer learning: https://github.com/tensorflow/models/tree/master/research/object_detection/samples/configs
+#       Addiditional info on the config file: https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/configuring_jobs.md
+#   For Transfer learning, use ckpt files, found here:  https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md
+#  
 ####################################################################################################
 
 
