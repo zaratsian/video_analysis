@@ -106,7 +106,7 @@ def convert_pascal_voc_xml_to_tfrecord(xml_filepath, dir_images):
     #image = Image.open(encoded_jpg_io)
     #width, height = image.size
     
-    img_format = filename.split('.')[-1].encode('utf8')
+    img_format = filename.split('.')[-1]
     height     = int(re.sub('<.*?>','',re.findall('<height>.*?</height>',xmldata)[0]))
     width      = int(re.sub('<.*?>','',re.findall('<width>.*?</width>',xmldata)[0]))
     
