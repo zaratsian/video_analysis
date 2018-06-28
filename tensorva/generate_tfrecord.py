@@ -14,8 +14,8 @@
 '''
 python object_detection/train.py \
     --logtostderr \
-    --pipeline_config_path=/tmp/zarats/ssd_mobilenet_v2_coco.config \
-    --train_dir=/tmp/zarats/train
+    --pipeline_config_path=/home/dzaratsian/tensorva/data/ssd_mobilenet_v2_coco.config \
+    --train_dir=/home/dzaratsian/tensorva/train
 '''
 #
 #
@@ -54,7 +54,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import absolute_import
 
-import os
+import os,re
 import io
 import pandas as pd
 import tensorflow as tf
@@ -70,17 +70,11 @@ from collections import namedtuple, OrderedDict
 #
 ####################################################################################################
 
-
-dir_images      = '/tmp/images'             # Images directory
-dir_annotations = '/tmp/images_labeled'     # Pascal VOC Annotations (as directory of XML files)
-output_path     = '/tmp/train.record'  
-
-
-# Label Map should link an ID (int) to each category that we are training against.
-# label_map.json
-label_map = {
-    'jetta': 1
-}
+flags = tf.app.flags
+flags.DEFINE_string('dir_images', '/tmp/images', 'Images directory')
+flags.DEFINE_string('dir_annotations', '/tmp/images_labeled', 'Pascal VOC Annotations (as directory of XML files)')
+flags.DEFINE_string('output_path', '/tmp/train.record', 'Path to output TFRecord')
+FLAGS = flags.FLAGS
 
 
 ####################################################################################################
@@ -89,30 +83,46 @@ label_map = {
 #
 ####################################################################################################
 
-def convert_pascal_voc_xml_to_tfrecord(xml_filepath, label_map, dir_images):
+def convert_pascal_voc_xml_to_tfrecord(xml_filepath, dir_images):
+    
+    # Label Map should link an ID (int) to each category that we are training against.
+    # label_map.json
+    label_map = {
+        'jetta': 1
+    }
     
     xmldata    = re.sub('(\n|\r|\t)',' ',open(xml_filepath,'r').read())
     
     filename   = re.sub('<.*?>','',re.findall('<filename>.*?</filename>',xmldata)[0])
     path       = re.sub('\/$','',dir_images) + '/' + str(filename)
     #path      = re.sub('<.*?>','',re.findall('<path>.*?</path>',xmldata)[0])
-    img_format = filename.split('.')[-1]
+    
+    # Read in IMG and convert to encoded IMG
+    with tf.gfile.GFile(path , 'rb') as fid:
+        encoded_jpg = fid.read()
+    
+    # Below is only used if I want to derive width and height based on image (otherwise I'll pull this from the XML)
+    #encoded_jpg_io = io.BytesIO(encoded_jpg)
+    #image = Image.open(encoded_jpg_io)
+    #width, height = image.size
+    
+    img_format = filename.split('.')[-1].encode('utf8')
     height     = int(re.sub('<.*?>','',re.findall('<height>.*?</height>',xmldata)[0]))
     width      = int(re.sub('<.*?>','',re.findall('<width>.*?</width>',xmldata)[0]))
     
     labels     = [re.sub('<.*?>','',i).encode('utf8') for i in re.findall('<name>.*?</name>',xmldata)]
     labels_int = [label_map[label.decode('utf-8')] for label in labels]
-    xmins      = [re.sub('<.*?>','',i) for i in re.findall('<xmins>.*?</xmins>',xmldata)]
-    xmaxs      = [re.sub('<.*?>','',i) for i in re.findall('<xmaxs>.*?</xmaxs>',xmldata)]
-    ymins      = [re.sub('<.*?>','',i) for i in re.findall('<ymins>.*?</ymins>',xmldata)]
-    ymaxs      = [re.sub('<.*?>','',i) for i in re.findall('<ymaxs>.*?</ymaxs>',xmldata)]
-    
-    # Read in IMG and convert to encoded IMG
-    with tf.gfile.GFile(path , 'rb') as fid:
-        encoded_jpg = fid.read()
-    encoded_jpg_io = io.BytesIO(encoded_jpg)
-    image = Image.open(encoded_jpg_io)
-    #width, height = image.size
+    xmins      = [float(re.sub('<.*?>','',i))/float(width)  for i in re.findall('<xmin>.*?</xmin>',xmldata)]
+    xmaxs      = [float(re.sub('<.*?>','',i))/float(width)  for i in re.findall('<xmax>.*?</xmax>',xmldata)]
+    ymins      = [float(re.sub('<.*?>','',i))/float(height) for i in re.findall('<ymin>.*?</ymin>',xmldata)]
+    ymaxs      = [float(re.sub('<.*?>','',i))/float(height) for i in re.findall('<ymax>.*?</ymax>',xmldata)]
+    # Used for testing (this is the format that is expected)
+    #labels     = [b'jetta']
+    #labels_int = [1]
+    #xmins      = [0.3]
+    #xmaxs      = [0.4]
+    #ymins      = [0.2]
+    #ymaxs      = [0.3]
     
     # Create TF Payload   
     tf_payload = tf.train.Example(features=tf.train.Features(feature={
@@ -138,23 +148,22 @@ def convert_pascal_voc_xml_to_tfrecord(xml_filepath, label_map, dir_images):
 #
 ####################################################################################################
 
-def main():
-    writer = tf.python_io.TFRecordWriter(output_path)
+def main(_):
+    writer = tf.python_io.TFRecordWriter(FLAGS.output_path)
     
-    xml_files = [ re.sub('\/$','',dir_annotations) + '/' + str(xmlfile) for xmlfile in os.listdir(dir_annotations)]
+    xml_files = [ re.sub('\/$','',FLAGS.dir_annotations) + '/' + str(xmlfile) for xmlfile in os.listdir(FLAGS.dir_annotations)]
     
     for xml_filepath in xml_files:
-        tf_example = convert_pascal_voc_xml_to_tfrecord(xml_filepath, label_map, dir_images)
+        tf_example = convert_pascal_voc_xml_to_tfrecord(xml_filepath, FLAGS.dir_images)
         writer.write(tf_example.SerializeToString())
     
     writer.close()
-    output_path = os.path.join(os.getcwd(), output_path)
-    print('Successfully created the TFRecords: {}'.format(output_path))
+    print('Successfully created the TFRecords: {}'.format(FLAGS.output_path))
 
 
 if __name__ == '__main__':
-    #tf.app.run()
-    main()
+    tf.app.run()
+
 
 
 #ZEND
