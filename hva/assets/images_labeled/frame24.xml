@@ -1,0 +1,26 @@
+<annotation>
+	<folder>images</folder>
+	<filename>frame24.jpg</filename>
+	<path>/Users/dzaratsian/Desktop/images/frame24.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>400</width>
+		<height>225</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>jetta</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>85</xmin>
+			<ymin>82</ymin>
+			<xmax>236</xmax>
+			<ymax>201</ymax>
+		</bndbox>
+	</object>
+</annotation>
